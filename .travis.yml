@@ -108,3 +108,12 @@ matrix:
         - bundle install
       script:
         - rake test
+
+    # Python Client (minimum Python version)
+    - language: python
+      python: 3.6  # minimum supported version
+      before_script:
+        - cd clients/python
+        - python3 setup.py install --user
+      script:
+        - python3 -m unittest discover -v

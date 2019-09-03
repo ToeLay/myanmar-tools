@@ -25,6 +25,7 @@ MVN=mvn
 NPM=npm
 RAKE=rake
 PHPUNIT=./vendor/bin/phpunit
+PYTHON = python3
 
 training/target: $(wildcard training/src/**/*)
 	$(MVN) -f training/pom.xml -q compile
@@ -47,20 +48,26 @@ copy-resources:
 	cp training/src/main/resources/com/google/myanmartools/zawgyiUnicodeModel.dat clients/js/resources
 	cp training/src/main/resources/com/google/myanmartools/zawgyiUnicodeModel.dat clients/ruby/lib/myanmar-tools/resources
 	cp training/src/main/resources/com/google/myanmartools/zawgyiUnicodeModel.dat clients/php/resources
+	cp training/src/main/resources/com/google/myanmartools/zawgyiUnicodeModel.dat clients/python/myanmar-tools/resources
 	cp training/src/main/resources/com/google/myanmartools/compatibility.tsv clients/java/src/test/resources/com/google/myanmartools
 	cp training/src/main/resources/com/google/myanmartools/compatibility.tsv clients/cpp/resources
 	cp training/src/main/resources/com/google/myanmartools/compatibility.tsv clients/js/resources
 	cp training/src/main/resources/com/google/myanmartools/compatibility.tsv clients/ruby/lib/myanmar-tools/resources
 	cp training/src/main/resources/com/google/myanmartools/compatibility.tsv clients/php/resources
+	cp training/src/main/resources/com/google/myanmartools/compatibility.tsv clients/python/myanmar-tools/resources
 
 	cp genconvert/input/mmgov_zawgyi_src.txt clients/java/src/test/resources/com/google/myanmartools
 	cp genconvert/input/mmgov_zawgyi_src.txt clients/js/resources
+	cp genconvert/input/mmgov_zawgyi_src.txt clients/python/myanmar-tools/resources
 	cp genconvert/input/udhr_mya_unicode_src.txt clients/js/resources
 	cp genconvert/input/udhr_mya_unicode_src.txt clients/java/src/test/resources/com/google/myanmartools
+	cp genconvert/input/udhr_mya_unicode_src.txt clients/python/myanmar-tools/resources
 	cp genconvert/output/mmgov_unicode_out.txt clients/java/src/test/resources/com/google/myanmartools
 	cp genconvert/output/mmgov_unicode_out.txt clients/js/resources
+	cp genconvert/output/mmgov_unicode_out.txt clients/python/myanmar-tools/resources
 	cp genconvert/output/udhr_mya_zawgyi_out.txt clients/java/src/test/resources/com/google/myanmartools
 	cp genconvert/output/udhr_mya_zawgyi_out.txt clients/js/resources
+	cp genconvert/output/udhr_mya_zawgyi_out.txt clients/python/myanmar-tools/resources
 
 train: zawgyiUnicodeModel.dat compatibility.tsv testData.tsv copy-resources
 
@@ -101,9 +108,13 @@ client-ruby: $(wildcard clients/ruby/**/*)
 client-php: $(wildcard clients/php/**/*)
 	$(COMPOSER) install
 
-test: clients client-cpp client-js client-ruby client-php
+client-python: $(wildcard clients/python/**/*)
+	cd clients/python && $(PYTHON) setup.py install --user
+
+test: clients client-cpp client-js client-ruby client-php client-python
 	cd clients/cpp && $(MAKE) test
 	cd clients/java && $(MVN) test
 	cd clients/js && $(NPM) test
 	cd clients/ruby && $(RAKE) test
 	$(PHPUNIT) --configuration clients/php/phpunit.xml
+	cd clients/python && $(PYTHON) -m unittest discover -v
